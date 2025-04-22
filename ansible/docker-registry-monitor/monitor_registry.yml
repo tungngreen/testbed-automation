@@ -6,6 +6,9 @@
     - monitored_images.yml
 
   tasks:
+    - name: Include registry vault variables
+      include_vars:
+        file: "{{ inventory_dir }}/group_vars/registry_vault.yml"
     - name: Copy monitoring script to controller
       copy:
         src: monitor_registry.py

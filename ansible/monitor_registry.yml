@@ -1,0 +1,22 @@
+---
+- name: Run monitoring script on controller
+  hosts: controller
+  gather_facts: no
+  vars_files:
+    - monitored_images.yml
+
+  tasks:
+    - name: Copy monitoring script to controller
+      copy:
+        src: monitor_registry.py
+        dest: /tmp/monitor_registry.py
+        mode: '0755'
+
+    - name: Run monitoring script
+      shell: >
+        python3 /tmp/monitor_registry.py "{{ registry.url }}"
+        {% for image in docker_images %}
+          "{{ image }}"
+        {% endfor %}
+      args:
+        executable: /bin/bash

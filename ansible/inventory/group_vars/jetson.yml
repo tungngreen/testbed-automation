@@ -1,0 +1,6 @@
+# inventory/prod/group_vars/server.yml
+# This is not encrypted
+ansible_user: tung  # Optional override or default
+# Include secrets
+vars_files:
+  - jetson_vault.yml

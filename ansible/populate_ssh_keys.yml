@@ -24,4 +24,3 @@
         user: "{{ ansible_user }}"
         state: present
         key: "{{ lookup('file', '~/.ssh/ansible_id_ed25519.pub') }}"
-

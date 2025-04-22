@@ -2,3 +2,7 @@ ansible_python_interpreter: /usr/bin/python3
 
 vars_files:
   - registry_vault.yml
+
+ansible_user: cdsn
+ansible_password: "cdsnlab"
+ansible_become_password: "cdsnlab"

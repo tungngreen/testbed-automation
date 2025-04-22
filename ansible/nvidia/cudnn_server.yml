@@ -14,6 +14,19 @@
     # when: "'jetsons' not in group_names" works fine too.
 
   tasks:
+    - name: Download CUDNN
+      shell: |
+        wget https://developer.download.nvidia.com/compute/cudnn/9.3.0/local_installers/cudnn-local-repo-ubuntu2204-9.3.0_1.0-1_amd64.deb
+        sudo dpkg -i cudnn-local-repo-ubuntu2204-9.3.0_1.0-1_amd64.deb
+    - name: Add CUDNN GPG key
+      shell: |
+        sudo apt-key add /var/cudnn-local-repo-9.3.0/7fa2af80.pub
+        sudo cp /var/cudnn-local-repo-ubuntu2204-9.3.0/cudnn-*-keyring.gpg /usr/share/keyrings/
+      become: true
+    - name: Update apt cache
+      apt:
+        update_cache: yes
+      become: true
     - name: Install CUDNN
       apt:
         name: cudnn

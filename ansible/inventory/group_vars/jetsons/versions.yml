@@ -1,0 +1,4 @@
+versions:
+  docker_ce: "5:27.5.1-1~ubuntu.20.04~focal"
+  docker_ce_cli: "5:27.5.1-1~ubuntu.20.04~focal"
+  containerd_io: "1.7.25-1"

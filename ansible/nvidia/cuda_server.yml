@@ -1,0 +1,50 @@
+---
+- name: Install CUDA Toolkit
+  hosts: all
+  gather_facts: no
+  become: yes
+  vars_files:
+    - "{{ inventory_dir }}/group_vars/versions.yml"
+
+  pre_tasks:
+  - name: Set host-specific credentials for servers
+    set_fact:
+      ansible_user: "{{ credentials[inventory_hostname].user }}"
+      ansible_password: "{{ credentials[inventory_hostname].password }}"
+      ansible_become_password: "{{ credentials[inventory_hostname].become_pass }}"
+    when: inventory_hostname not in groups['jetsons']
+    # when: "'jetsons' not in group_names" works fine too.
+
+  tasks:
+    - name: Add NVIDIA package repositories
+      shell: |
+        wget https://developer.download.nvidia.com/compute/cuda/repos/ubuntu2204/x86_64/cuda-ubuntu2204.pin
+        sudo mv cuda-ubuntu2204.pin /etc/apt/preferences.d/cuda-repository-pin-600
+      become: true
+    - name: Copy CUDA Deb file
+      copy:
+        src: "./cuda-repo-ubuntu2204-12-6-local_12.6.0-560.28.03-1_amd64.deb"
+        dest: /home/{{ ansible_user }}/
+    - name: Install CUDA repository
+      apt:
+        deb: /home/{{ ansible_user }}/cuda-repo-ubuntu2204-12-6-local_12.6.0-560.28.03-1_amd64.deb
+        state: present
+      become: true
+    - name: Add NVIDIA GPG key
+      shell: |
+        sudo cp /var/cuda-repo-ubuntu2204-12-6-local/cuda-*-keyring.gpg /usr/share/keyrings/
+      become: true
+    - name: Update apt cache
+      apt:
+        update_cache: yes
+      become: true
+    - name: Install CUDA Toolkit
+      apt:
+        name: "cuda-toolkit-{{ versions.cuda }}"
+        state: present
+      become: true
+    - name: Install NVIDIA driver
+      apt:
+        name: "cuda-drivers"
+        state: present
+      become: true

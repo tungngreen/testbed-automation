@@ -1,21 +1,18 @@
 ---
 - name: Install Docker on all devices
-  hosts: server
-  vars_files:
-    - "{{ inventory_dir }}/group_vars/server_vault.yml"
+  hosts: all
+  gather_facts: yes
+  # vars_files:
+  #   - "{{ inventory_dir }}/group_vars/versions.yml"
 
   pre_tasks:
-  - name: Debug credentials
-    debug:
-      msg: |
-        user: {{ ansible_user }}
-        become_pass set: {{ ansible_become_password is defined }}
-    when: inventory_hostname == "crystal"
-  - name: Set host-specific credentials
+  - name: Set host-specific credentials for servers
     set_fact:
       ansible_user: "{{ credentials[inventory_hostname].user }}"
       ansible_password: "{{ credentials[inventory_hostname].password }}"
       ansible_become_password: "{{ credentials[inventory_hostname].become_pass }}"
+    when: inventory_hostname not in groups['jetsons']
+
   - name: Test privilege escalation
     command: whoami
     become: yes
@@ -35,38 +32,43 @@
           - lsb-release
         state: present
         update_cache: yes
-      become: yes # After update_cache ensure this is run with sudo otherwise it will fail "permission denied"
+      become: yes # After apt's cache update,  ensure this is run with sudo otherwise it will fail "permission denied"
 
 
     - name: Add Docker GPG key
       apt_key:
         url: https://download.docker.com/linux/ubuntu/gpg
         state: present
+      become: yes # After apt's cache update,  ensure this is run with sudo otherwise it will fail "permission denied"
 
     - name: Add Docker APT repository
       apt_repository:
         repo: "deb [arch=amd64] https://download.docker.com/linux/ubuntu {{ ansible_distribution_release }} stable"
         state: present
         filename: docker
+      become: yes # After apt's cache update,  ensure this is run with sudo otherwise it will fail "permission denied"
 
     - name: Update APT cache
       apt:
         update_cache: yes
-      become: yes # After update_cache ensure this is run with sudo otherwise it will fail "permission denied"
+      become: yes # After apt's cache update,  ensure this is run with sudo otherwise it will fail "permission denied"
 
     - name: Install Docker packages
       apt:
         name:
-          - docker-ce
-          - docker-ce-cli
-          - containerd.io
-        state: latest
+          - "docker-ce={{ versions.docker_ce }}"
+          - "docker-ce-cli={{ versions.docker_ce_cli }}"
+          - "containerd.io={{ versions.containerd_io }}"
+        state: present
+        allow_downgrade: yes
+      become: yes
 
     - name: Enable and start Docker
       systemd:
         name: docker
         enabled: true
         state: started
+      become: yes
 
     - name: Add current user to docker group
       user:
@@ -74,3 +76,4 @@
         groups: docker
         append: yes
       when: ansible_user != 'root'
+      become: yes

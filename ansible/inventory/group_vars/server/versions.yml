@@ -1,0 +1,9 @@
+---
+versions:
+  docker_ce: "5:27.5.1-1~ubuntu.22.04~jammy"
+  docker_ce_cli: "5:27.5.1-1~ubuntu.22.04~jammy"
+  containerd_io: "1.7.25-1"
+  docker_compose_plugin: "2.32.4-1"
+  docker_compose: ""
+  cuda: "12-6"
+  cudnn: "9.3.0-1"

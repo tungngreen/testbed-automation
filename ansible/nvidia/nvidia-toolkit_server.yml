@@ -16,38 +16,32 @@
     - name: Skip Jetsons based on architecture
       debug:
         msg: "Skipping Jetson device ({{ ansible_architecture }})"
-      when: ansible_architecture == "aarch64"
 
     - name: Add NVIDIA GPG key
       apt_key:
         url: https://nvidia.github.io/nvidia-docker/gpgkey
         state: present
       become: yes
-      when: ansible_architecture != "aarch64"
 
     - name: Add NVIDIA container toolkit repository
       get_url:
         url: "https://nvidia.github.io/nvidia-docker/ubuntu{{ ansible_distribution_version }}/nvidia-docker.list"
         dest: /etc/apt/sources.list.d/nvidia-docker.list
       become: yes
-      when: ansible_architecture != "aarch64"
 
     - name: Update APT cache
       apt:
         update_cache: yes
       become: yes
-      when: ansible_architecture != "aarch64"
 
     - name: Install NVIDIA container toolkit
       apt:
         name: nvidia-container-toolkit
         state: present
       become: yes
-      when: ansible_architecture != "aarch64"
 
     - name: Restart Docker after toolkit install
       systemd:
         name: docker
         state: restarted
       become: yes
-      when: ansible_architecture != "aarch64"

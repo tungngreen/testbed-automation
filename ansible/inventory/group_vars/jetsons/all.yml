@@ -1,4 +1,4 @@
 ---
 vars_files:
-  - jetsons_vault.yml
+  - jetson_vault.yml
   - versions.yml

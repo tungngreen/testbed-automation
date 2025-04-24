@@ -7,3 +7,4 @@ versions:
   docker_compose: ""
   cuda: "12-6"
   cudnn: "9.3.0-1"
+  cmake: "3.25.2"

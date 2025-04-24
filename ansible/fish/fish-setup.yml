@@ -1,0 +1,43 @@
+---
+- name: Setup Fish cells
+  hosts: all
+  gather_facts: yes
+  vars_files:
+    - "{{ inventory_dir }}/group_vars/versions.yml"
+
+  pre_tasks:
+  - name: Set host-specific credentials for servers
+    set_fact:
+      ansible_user: "{{ credentials[inventory_hostname].user }}"
+      ansible_password: "{{ credentials[inventory_hostname].password }}"
+      ansible_become_password: "{{ credentials[inventory_hostname].become_pass }}"
+    when: inventory_hostname not in groups['jetsons']
+
+  tasks:
+    - name: Add Fish PPA repository if not already added
+      apt_repository:
+        repo: "ppa:fish-shell/release-3"
+        state: present
+      when: ansible_os_family == "Debian"
+      register: fish_repo
+      changed_when: fish_repo is not defined or fish_repo is changed
+      retries: 3
+      delay: 5
+      until: fish_repo is succeeded
+      become: true
+    - name: Update apt cache
+      apt:
+        update_cache: yes
+      when: ansible_os_family == "Debian"
+      become: true
+    - name: Install Fish shell
+      apt:
+        name: fish
+        state: present
+      become: true
+    - name: Setup fish as the default shell
+      command: chsh -s /usr/bin/fish {{ ansible_user }}
+      become: true
+      when: inventory_hostname not in groups['jetsons'] # Only for the servers where we have our own users
+
+    # when: "'jetsons' not in group_names" works fine too.

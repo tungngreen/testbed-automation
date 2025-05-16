@@ -24,6 +24,15 @@
     when: inventory_hostname in groups['jetsons']
 
   tasks:
+    - name: Update apt cache
+      apt:
+        update_cache: yes
+      become: yes
+    - name: Install jq
+      apt:
+        name: jq
+        state: present
+      become: yes
     - name: Copy docker.sh to /usr/local/bin/
       copy:
         src: "{{ source_script }}"

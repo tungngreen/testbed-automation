@@ -18,13 +18,13 @@
       ansible_ssh_user: "{{ ansible_user }}"
       ansible_ssh_pass: "{{ ansible_password }}"
 
-  tasks:
-    - name: Copy public key to remote hosts
+  tasks:      
+    - name: Copy ansible ssh key to remote hosts
       authorized_key:
         user: "{{ ansible_user }}"
         state: present
         key: "{{ lookup('file', '~/.ssh/ansible_id_ed25519.pub') }}"
-    - name: Copy public key to remote hosts
+    - name: Copy ssh key to remote hosts
       authorized_key:
         user: "{{ ansible_user }}"
         state: present

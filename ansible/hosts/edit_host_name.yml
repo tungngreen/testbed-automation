@@ -1,0 +1,33 @@
+---
+- name: Edit host names with names from inventory
+  hosts: all
+  gather_facts: no
+  become: yes
+
+  pre_tasks:
+  - name: Set host name based on inventory
+    set_fact:
+      ansible_user: "{{ credentials[inventory_hostname].user }}"
+      ansible_password: "{{ credentials[inventory_hostname].password }}"
+      ansible_become_password: "{{ credentials[inventory_hostname].become_pass }}"
+    when: inventory_hostname not in groups['jetsons']
+    # when: "'jetsons' not in group_names" works fine too.
+      
+  - name: Set Ansible connection variables
+    set_fact:
+      ansible_ssh_user: "{{ ansible_user }}"
+      ansible_ssh_pass: "{{ ansible_password }}"
+
+  tasks:
+    - name: Set the hostname
+      ansible.builtin.hostname:
+        name: "{{ inventory_hostname }}"
+      when: inventory_hostname is defined
+
+    - name: Update /etc/hosts with new hostname
+      lineinfile:
+        path: /etc/hosts
+        regexp: "^{{ ip_addr | regex_escape }}\\s+"
+        line: "{{ ip_addr }} {{ inventory_hostname }}"
+        state: present
+      when: inventory_hostname is defined and ip_addr is defined

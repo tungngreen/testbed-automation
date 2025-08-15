@@ -1,13 +1,14 @@
 ---
 - name: Master Playbook for Server Setup
-  hosts: all_your_target_hosts # Or a specific group like 'servers' from your inventory
+  hosts: server
   gather_facts: yes # Good to gather facts once at the start
 
   # >>> IMPORTANT: import_playbook statements go directly here, at the PLAY level <<<
 
 - import_playbook: hosts/populate_server_ssh_keys.yml
+- import_playbook: hosts/edit_host_name.yml
 - import_playbook: fish/fish-setup.yml
-- import_playbook: docker-setup/setup.yml
+- import_playbook: docker/setup.yml
 - import_playbook: cmake/cmake-server.yml
 - import_playbook: nvidia/cuda_server.yml
 - import_playbook: nvidia/cudnn_server.yml

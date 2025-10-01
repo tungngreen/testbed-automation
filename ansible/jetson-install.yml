@@ -1,0 +1,25 @@
+---
+- name: Master Playbook for Server Setup
+  hosts: jetsons
+  gather_facts: no # Good to gather facts once at the start
+
+  # >>> IMPORTANT: import_playbook statements go directly here, at the PLAY level <<<
+
+- import_playbook: hosts/populate_server_ssh_keys.yml
+- import_playbook: hosts/edit_host_name.yml
+- import_playbook: fish/fish-setup.yml
+- import_playbook: nvidia/jetson.yml
+- import_playbook: cmake/cmake-jetsons.yml
+- import_playbook: docker/setup.yml
+- import_playbook: nvidia/configure_docker_daemon.yml
+- import_playbook: docker-registry-monitor/setup.yml
+- import_playbook: docker/private_registry_cli.yml
+- import_playbook: grpc/setup.yml
+
+# You can still have a final play if you wish, for a summary or final checks
+- name: Final confirmation play
+  hosts: all_your_target_hosts # Must specify hosts again for this new play
+  tasks:
+    - name: All setup tasks completed successfully
+      ansible.builtin.debug:
+        msg: "All server setup tasks have finished on {{ inventory_hostname }}."

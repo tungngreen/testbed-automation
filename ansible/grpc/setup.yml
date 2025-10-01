@@ -1,6 +1,6 @@
 ---
 - name: Building gRPC from source
-  hosts: server
+  hosts: all
   gather_facts: yes
   vars_files:
     - "{{ inventory_dir }}/group_vars/versions.yml"
@@ -115,11 +115,13 @@
     register: grpc_repo_info
 
   ### If existing, remove it
-  - name: Remove the existing directory if it exists
-    file:
-      path: "{{ grpc_source_dir }}"
-      state: absent
-    when: grpc_repo_info.stat.exists
+  # - name: Remove the existing directory if it exists
+  #   file:
+  #     path: "{{ grpc_source_dir }}"
+  #     state: absent
+  #   when: grpc_repo_info.stat.exists
+  
+
 
   ### Then clone the repository
   - name: Clone gRPC repository
@@ -129,6 +131,7 @@
       version: "{{ grpc_source_tag }}"
       update: no
       track_submodules: no
+    when: not grpc_repo_info.stat.exists
     register: grpc_repo
 
   - name: Initialize and update submodules
